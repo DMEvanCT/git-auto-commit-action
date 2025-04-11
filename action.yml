@@ -73,6 +73,18 @@ inputs:
   internal_git_binary:
     description: Internal use only! Path to git binary used to check if git is available. (Don't change this!)
     default: git
+  pat_token:
+    description: Personal Access Token (PAT) used for authentication when pushing changes to a separate repository.
+    required: false
+    default: ''
+  destination_org:
+    description: Destination organization for pushing changes to a separate repository.
+    required: false
+    default: ''
+  destination_repo:
+    description: Destination repository for pushing changes to a separate repository.
+    required: false
+    default: ''
 
 outputs:
   changes_detected:

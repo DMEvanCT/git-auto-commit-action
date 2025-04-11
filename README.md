@@ -118,6 +118,15 @@ The following is an extended example with all available options.
 
     # Optional. Create given branch name in local and remote repository.
     create_branch: true
+
+    # Optional. Personal Access Token (PAT) used for authentication when pushing changes to a separate repository.
+    pat_token: ${{ secrets.PAT }}
+
+    # Optional. Destination organization for pushing changes to a separate repository.
+    destination_org: my-org
+
+    # Optional. Destination repository for pushing changes to a separate repository.
+    destination_repo: my-repo
 ```
 
 Please note that the Action depends on `bash`. If you're using the Action in a job in combination with a custom Docker container, make sure that `bash` is installed.
