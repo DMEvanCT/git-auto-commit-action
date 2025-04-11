@@ -39,6 +39,9 @@ setup() {
     export INPUT_DISABLE_GLOBBING=false
     export INPUT_CREATE_BRANCH=false
     export INPUT_INTERNAL_GIT_BINARY=git
+    export INPUT_PAT_TOKEN=""
+    export INPUT_DESTINATION_ORG=""
+    export INPUT_DESTINATION_REPO=""
 
     # Set GitHub environment variables used by the GitHub Action
     temp_github_output_file=$(mktemp -t github_output_test.XXXXX)
@@ -1081,7 +1084,7 @@ cat_github_output() {
     assert_line "Working tree clean. Nothing to commit."
 
     assert_line "::set-output name=changes_detected::false"
-    refute_line -e "::set-output name=commit_hash::[0-9a-f]{40}$"
+    refute_line -e "::set-output name=commit_hash=[0-9a-f]{40}$"
 }
 
 @test "It fails hard if git is not available" {
@@ -1124,4 +1127,26 @@ END
 
     assert_failure;
     assert_line "::error::git-status failed with:<fatal: not a git repository (or any of the parent directories): .git>"
+}
+
+@test "It pushes changes to a separate repository using a PAT token" {
+    INPUT_PAT_TOKEN="fake_pat_token"
+    INPUT_DESTINATION_ORG="fake_org"
+    INPUT_DESTINATION_REPO="fake_repo"
+    INPUT_BRANCH="main"
+
+    touch "${FAKE_LOCAL_REPOSITORY}"/new-file-{1,2,3}.txt
+
+    run git_auto_commit
+
+    assert_success
+
+    assert_line "INPUT_PAT_TOKEN: fake_pat_token"
+    assert_line "INPUT_DESTINATION_ORG: fake_org"
+    assert_line "INPUT_DESTINATION_REPO: fake_repo"
+    assert_line "::debug::Push commit to remote branch main"
+
+    run cat_github_output
+    assert_line "changes_detected=true"
+    assert_line -e "commit_hash=[0-9a-f]{40}$"
 }

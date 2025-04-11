@@ -184,7 +184,13 @@ _push_to_github() {
 
     else
         _log "debug" "Push commit to remote branch $INPUT_BRANCH";
-        git push --set-upstream origin "HEAD:$INPUT_BRANCH" --follow-tags --atomic ${INPUT_PUSH_OPTIONS:+"${INPUT_PUSH_OPTIONS_ARRAY[@]}"};
+        if [ -n "$INPUT_PAT_TOKEN" ] && [ -n "$INPUT_DESTINATION_ORG" ] && [ -n "$INPUT_DESTINATION_REPO" ]; then
+            remote_repo="https://${INPUT_PAT_TOKEN}@github.com/${INPUT_DESTINATION_ORG}/${INPUT_DESTINATION_REPO}.git"
+            git remote add destination "$remote_repo"
+            git push --set-upstream destination "HEAD:$INPUT_BRANCH" --follow-tags --atomic ${INPUT_PUSH_OPTIONS:+"${INPUT_PUSH_OPTIONS_ARRAY[@]}"};
+        else
+            git push --set-upstream origin "HEAD:$INPUT_BRANCH" --follow-tags --atomic ${INPUT_PUSH_OPTIONS:+"${INPUT_PUSH_OPTIONS_ARRAY[@]}"};
+        fi
     fi
 }
 
